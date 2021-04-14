@@ -256,17 +256,13 @@ class Settings {
 		$tab    = isset( $_GET['tab'] ) ? sanitize_file_name( wp_unslash( $_GET['tab'] ) ) : 'git_updater_settings';
 		$subtab = isset( $_GET['subtab'] ) ? sanitize_file_name( wp_unslash( $_GET['subtab'] ) ) : 'git_updater';
 		// phpcs:enable
-		$logo = plugins_url( basename( dirname( __DIR__, 2 ) ) . '/assets/GitHub_Updater_logo_small.png' ); ?>
+		$logo  = plugins_url( basename( dirname( __DIR__, 2 ) ) . '/assets/GitHub_Updater_logo_small.png' );
+		$label = $this->is_pro_running() ? __( 'Git Updater PRO', 'git-updater' ) : __( 'Git Updater', 'git-updater' );
+		?>
 		<div class="wrap git-updater-settings">
 			<h1>
 				<a href="https://github.com/afragen/git-updater" target="_blank"><img src="<?php esc_attr_e( $logo ); ?>" alt="Git Updater logo" /></a><br>
-				<?php
-				if ( $this->is_pro_running() ) {
-					esc_html_e( 'Git Updater PRO', 'git-updater' );
-				} else {
-					esc_html_e( 'Git Updater', 'git-updater' );
-				}
-				?>
+				<?php echo esc_html( $label ); ?>
 			</h1>
 			<?php ( new Messages() )->show_upsell(); ?>
 			<?php $this->options_tabs(); ?>
@@ -326,16 +322,13 @@ class Settings {
 	private function admin_page_notices() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$display = ( isset( $_GET['updated'] ) && is_multisite() )
-				|| isset( $_GET['reset'] )
-				|| isset( $_GET['refresh_transients'] );
+			|| isset( $_GET['refresh_transients'] );
 
 		if ( $display ) {
 			echo '<div class="updated"><p>';
 		}
 		if ( ( isset( $_GET['updated'] ) && '1' === $_GET['updated'] ) && is_multisite() ) {
 			esc_html_e( 'Settings saved.', 'git-updater' );
-		} elseif ( isset( $_GET['reset'] ) && '1' === $_GET['reset'] ) {
-			esc_html_e( 'RESTful key reset.', 'git-updater' );
 		} elseif ( isset( $_GET['refresh_transients'] ) && '1' === $_GET['refresh_transients'] ) {
 			esc_html_e( 'Cache refreshed.', 'git-updater' );
 		}
@@ -543,7 +536,7 @@ class Settings {
 				$key  = array_search( $e, $gu_unset_keys, true );
 				$repo = str_replace( 'current_branch_', '', $key );
 				if ( array_key_exists( $key, $gu_unset_keys )
-				&& false !== strpos( $key, 'current_branch' )
+					&& false !== strpos( $key, 'current_branch' )
 				) {
 					unset( $gu_unset_keys[ $key ] );
 				}
@@ -568,11 +561,7 @@ class Settings {
 	 */
 	public function print_section_gu_settings() {
 		$this->display_dot_org_overrides();
-		print(
-			wp_kses_post(
-				__( '<p>Check to enable branch switching from the Plugins or Themes page, to bypass WP-Cron background processing, or to log `deprecated hook` messages to the debug.log.</p><p>Checkbox settings cannot be modified while waiting for WP-Cron background updating.</p>', 'git-updater' )
-			)
-		);
+		print( wp_kses_post( __( 'Check to enable.', 'git-updater' ) ) );
 	}
 
 	/**
@@ -696,15 +685,12 @@ class Settings {
 	private function filter_options() {
 		$options = self::$options;
 
-		// Remove checkbox options, only after background update complete or when bypassing background processing.
-		if ( ! $this->waiting_for_background_update() || isset( $options['bypass_background_processing'] ) ) {
-			$options = array_filter(
-				$options,
-				function ( $e ) {
-					return '1' !== $e;
-				}
-			);
-		}
+		$options = array_filter(
+			$options,
+			function ( $e ) {
+				return '1' !== $e;
+			}
+		);
 
 		// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// phpcs:disable WordPress.Security.NonceVerification

@@ -14,7 +14,7 @@ use Fragen\Singleton;
 use Fragen\Git_Updater\Traits\GU_Trait;
 use Fragen\Git_Updater\Traits\Basic_Auth_Loader;
 use Fragen\Git_Updater\API\Language_Pack_API;
-use Fragen\Git_Updater\PRO\Language_Pack;
+use Fragen\Git_Updater\PRO\Branch;
 
 /*
  * Exit if called directly.
@@ -341,10 +341,8 @@ class Base {
 			}
 			$repo_api->get_remote_tag();
 			$repo->download_link = $repo_api->construct_download_link();
-			if ( $this->is_pro_running() ) {
-				$language_pack = new Language_Pack( $repo, new Language_Pack_API( $repo ) );
-				$language_pack->run();
-			}
+			$language_pack       = new Language_Pack( $repo, new Language_Pack_API( $repo ) );
+			$language_pack->run();
 		}
 
 		return true;
@@ -466,7 +464,7 @@ class Base {
 		}
 
 		if ( $this->is_pro_running() ) {
-			Singleton::get_instance( 'Fragen\Git_Updater\PRO\Branch_Switcher', $this )->set_branch_on_switch( $slug );
+			( new Branch() )->set_branch_on_switch( $slug );
 
 			/*
 			* Remote install source.
